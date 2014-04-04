@@ -34,6 +34,8 @@ void setup()
   pinMode(SPICS, OUTPUT);
   //other pin testing
   pinMode(curr_test_pin, INPUT);
+  pinMode(PUSH1, INPUT_PULLUP);
+  pinMode(PUSH2, INPUT_PULLUP);
 }
 
 void loop()
@@ -44,6 +46,10 @@ void loop()
   digitalWrite(BLUE_LED, LOW);
   digitalWrite(SPISCK, HIGH);
   digitalWrite(BLUE_LED, HIGH);
+  if(digitalRead(PUSH1) == LOW) {
+    flash_red();
+    delay(200);
+  }
 }
 
 void flash_blue() {
