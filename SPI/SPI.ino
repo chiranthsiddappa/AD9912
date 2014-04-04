@@ -14,12 +14,30 @@
 #define PB5 2
 #define SPICS PB5
 
+//DDS Register Addresses
+//LSB
+#define FTW0_1 0x01A6
+#define FTW0_2 0x01A7
+#define FTW0_3 0x01A8
+#define FTW0_4 0x01A9
+//MSB
+#define FTW0_start_1 0x01AA
+#define FTW0_start_2 0x01AB
+#define DAC_fsc_1 0x040B
+#define DAC_fsc_2 0x040C
+
+//DDS Default values and maxes
+#define DAC_fcs_default 0x01FF
+#define DAC_fcs_max 0x03FF;
+
 //test pin
 #define curr_test_pin 4
 
 // global type variables
 unsigned char spi_data[4];
 int serial_test = 25;
+int freqWordArray[2];
+int DAC_fsc;
 
 // setup and loop here
 void setup()
