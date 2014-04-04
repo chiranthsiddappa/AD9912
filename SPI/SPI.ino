@@ -20,6 +20,8 @@
 // global type variables
 unsigned char spi_data[4];
 int serial_test = 25;
+
+// setup and loop here
 void setup()
 {
   // put your setup code here, to run once:
@@ -58,6 +60,7 @@ void loop()
   }
 }
 
+//Custom functions here
 void flash_blue() {
   digitalWrite(BLUE_LED, LOW);
   delay(20);
