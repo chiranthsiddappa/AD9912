@@ -36,6 +36,8 @@ void setup()
   pinMode(curr_test_pin, INPUT);
   pinMode(PUSH1, INPUT_PULLUP);
   pinMode(PUSH2, INPUT_PULLUP);
+  //All done
+  flash_green();
 }
 
 void loop()
@@ -43,17 +45,20 @@ void loop()
   // put your main code here, to run repeatedly:
   //toggle blinky first
   digitalWrite(SPISCK, LOW);
-  digitalWrite(BLUE_LED, LOW);
   digitalWrite(SPISCK, HIGH);
-  digitalWrite(BLUE_LED, HIGH);
   if(digitalRead(PUSH1) == LOW) {
     flash_red();
     delay(200);
+    maxInt();
+  }
+  if(digitalRead(PUSH2) == LOW) {
+    flash_red();
+    delay(200);
+    maxShort();
   }
 }
 
 void flash_blue() {
-  
   digitalWrite(BLUE_LED, LOW);
   delay(20);
   digitalWrite(BLUE_LED, HIGH);
@@ -79,4 +84,26 @@ void flash_green() {
 
 void spi_transfer_test() {
   SPI.transfer('4');
+}
+
+void maxInt() {
+  unsigned int maxInt = 0;
+  Serial.println("\nMax Int: ");
+  delay(20);
+  maxInt = 0;
+  maxInt -= 1;
+  Serial.print(maxInt, HEX);
+  Serial.println("");
+  delay(10);
+}
+
+void maxShort() {
+  unsigned short maxShort;
+  Serial.print("\nMax Short: ");
+  delay(20);
+  maxShort = 0;
+  maxShort -= 1;
+  Serial.print(maxShort, HEX);
+  Serial.println("");
+  delay(10);
 }
