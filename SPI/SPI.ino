@@ -72,8 +72,8 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  if(digitalRead(PUSH1) == LOW) 
-    DDS_spi_read();
+  DDS_spi_read();
+  delay(5);
 }
 
 //Custom functions here
@@ -81,10 +81,14 @@ void DDS_spi_read() {
   //use the global readFreqDAC
   instruction &= 0x0;
   instruction |= 0x5 << 29;
+  instruction |= DAC_fsc_1 << 16;
   Serial.print("Instruction: ");
-  Serial.print(instruction, BIN);
+  Serial.print(instruction >> 16, BIN);
   Serial.println("");
   SPI.transfer(instruction >> 24);
+  SPI.transfer(instruction >> 16);
+  readFreqDAC[2] = SPI.transfer(0x00) << 8;
+  readFreqDAC[2] |= SPI.transfer(0x00);
 }
 
 void DDS_spi_write_freq() {
