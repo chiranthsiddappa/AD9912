@@ -35,14 +35,17 @@
 
 // global type variables
 unsigned char spi_data[4];
-int serial_test = 25;
-int freqWordArray[2];
-int DAC_fsc;
+unsigned int freqWordArray[2];
+unsigned int DAC_fsc;
+unsigned int readFreqDAC[3];
+unsigned int instruction;
 
 // setup and loop here
 void setup()
 {
   // put your setup code here, to run once:
+  //setup DDS registers
+  DAC_fsc = DAC_fcs_default;
   pinMode(BLUE_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
@@ -52,6 +55,12 @@ void setup()
   pinMode(SPIMISO, INPUT);
   pinMode(SPIMOSI, OUTPUT);
   pinMode(SPICS, OUTPUT);
+  //Initialize SPI bus
+  SPI.begin();
+  SPI.setModule(2);
+  SPI.setClockDivider(2);
+  SPI.setDataMode(SPI_MODE0);
+  SPI.setBitOrder(MSBFIRST);
   //other pin testing
   pinMode(curr_test_pin, INPUT);
   pinMode(PUSH1, INPUT_PULLUP);
@@ -63,22 +72,29 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  //toggle blinky first
-  digitalWrite(SPISCK, LOW);
-  digitalWrite(SPISCK, HIGH);
-  if(digitalRead(PUSH1) == LOW) {
-    flash_red();
-    delay(200);
-    maxInt();
-  }
-  if(digitalRead(PUSH2) == LOW) {
-    flash_red();
-    delay(200);
-    maxShort();
-  }
+  if(digitalRead(PUSH1) == LOW) 
+    DDS_spi_read();
 }
 
 //Custom functions here
+void DDS_spi_read() {
+  //use the global readFreqDAC
+  instruction &= 0x0;
+  instruction |= 0x5 << 29;
+  Serial.print("Instruction: ");
+  Serial.print(instruction, BIN);
+  Serial.println("");
+  SPI.transfer(instruction >> 24);
+}
+
+void DDS_spi_write_freq() {
+  
+}
+
+void DDS_spi_write_DAC(int DAC_out) {
+
+}
+
 void flash_blue() {
   digitalWrite(BLUE_LED, LOW);
   delay(20);
@@ -103,8 +119,8 @@ void flash_green() {
   digitalWrite(GREEN_LED, LOW);
 }
 
-void spi_transfer_test() {
-  SPI.transfer('4');
+void spi_read_test() {
+  
 }
 
 void maxInt() {
