@@ -49,7 +49,9 @@ void setup()
   pinMode(BLUE_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
+  // Initialize other DDS pins
+  pinMode(IO_update, OUTPUT);
   // set pins for SPI bus here
   pinMode(SPISCK, OUTPUT);
   pinMode(SPIMISO, INPUT);
@@ -72,23 +74,31 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  DDS_spi_read();
+  if(digitalRead(PUSH1) == LOW) {
+    DDS_spi_read();
+    delay(200);
+  }
+  if(digitalRead(IO_update) == HIGH) {
+    flash_blue();
+  }
   delay(5);
 }
 
 //Custom functions here
 void DDS_spi_read() {
   //use the global readFreqDAC
+  flash_blue();
   instruction &= 0x0;
   instruction |= 0x5 << 29;
   instruction |= DAC_fsc_1 << 16;
-  Serial.print("Instruction: ");
+  Serial.print("Instruction DAC read: ");
   Serial.print(instruction >> 16, BIN);
   Serial.println("");
   SPI.transfer(instruction >> 24);
   SPI.transfer(instruction >> 16);
   readFreqDAC[2] = SPI.transfer(0x00) << 8;
   readFreqDAC[2] |= SPI.transfer(0x00);
+  flash_blue();
 }
 
 void DDS_spi_write_freq() {
