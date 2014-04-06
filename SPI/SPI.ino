@@ -2,7 +2,7 @@
 #include <string.h>
 #include <SPI.h>
 
-#define PB4 7
+#define PB4 0x7
 #define SPISCK PB4
 
 #define PB6 23
@@ -11,8 +11,11 @@
 #define PB7 24
 #define SPIMOSI PB7
 
-#define PB5 2
+#define PB5 0x2
 #define SPICS PB5
+
+#define PF3 GREEN_LED
+#define IO_update PF3
 
 //DDS Register Addresses
 //LSB
@@ -60,7 +63,7 @@ void setup()
   //Initialize SPI bus
   SPI.begin();
   SPI.setModule(2);
-  SPI.setClockDivider(2);
+  SPI.setClockDivider(4);
   SPI.setDataMode(SPI_MODE0);
   SPI.setBitOrder(MSBFIRST);
   //other pin testing
@@ -75,30 +78,42 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH1) == LOW) {
+    DDS_spi_init();
+    delay(5);
+  }
+  if(digitalRead(PUSH2) == LOW) {
     DDS_spi_read();
-    delay(200);
+    Serial.println("Current Status");
+    Serial.print("DAC Read: ");
+    Serial.print(readFreqDAC[2], HEX);
+    Serial.println();
   }
-  if(digitalRead(IO_update) == HIGH) {
-    flash_blue();
-  }
-  delay(5);
 }
 
 //Custom functions here
+
+void DDS_spi_init() {
+  //4 wire command for SPIMISO
+  instruction = 0x800098;
+  SPI.transfer(instruction >> 16);
+  SPI.transfer(instruction >> 8);
+  SPI.transfer(instruction);
+}
+
 void DDS_spi_read() {
   //use the global readFreqDAC
-  flash_blue();
   instruction &= 0x0;
   instruction |= 0x5 << 29;
   instruction |= DAC_fsc_1 << 16;
-  Serial.print("Instruction DAC read: ");
+  /*  Serial.print("Instruction DAC read: ");
   Serial.print(instruction >> 16, BIN);
   Serial.println("");
+  */
   SPI.transfer(instruction >> 24);
   SPI.transfer(instruction >> 16);
   readFreqDAC[2] = SPI.transfer(0x00) << 8;
   readFreqDAC[2] |= SPI.transfer(0x00);
-  flash_blue();
+  
 }
 
 void DDS_spi_write_freq() {
