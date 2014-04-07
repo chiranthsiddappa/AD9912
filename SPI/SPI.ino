@@ -63,7 +63,7 @@ void setup()
   //Initialize SPI bus
   SPI.begin();
   SPI.setModule(2);
-  SPI.setClockDivider(4);
+  SPI.setClockDivider(16);
   SPI.setDataMode(SPI_MODE0);
   SPI.setBitOrder(MSBFIRST);
   //other pin testing
@@ -94,7 +94,7 @@ void loop()
 
 void DDS_spi_init() {
   //4 wire command for SPIMISO
-  instruction = 0x800098;
+  instruction = 0x000098;
   SPI.transfer(instruction >> 16);
   SPI.transfer(instruction >> 8);
   SPI.transfer(instruction);
@@ -113,7 +113,6 @@ void DDS_spi_read() {
   SPI.transfer(instruction >> 16);
   readFreqDAC[2] = SPI.transfer(0x00) << 8;
   readFreqDAC[2] |= SPI.transfer(0x00);
-  
 }
 
 void DDS_spi_write_freq() {
