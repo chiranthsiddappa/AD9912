@@ -54,7 +54,7 @@ void setup()
   pinMode(BLUE_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
   // Initialize other DDS pins
   pinMode(IO_update, OUTPUT);
   // set pins for SPI bus here
@@ -124,13 +124,18 @@ void DDS_spi_read() {
 }
 
 unsigned int get_part_id() {
+  //Using a 1-byte transfer
   unsigned int id;
   instruction &= 0x0;
-  instruction |= 0x5 << 29;
+  instruction |= 0x4 << 29;
   instruction |= 0x0003 << 16;
   SPI.transfer(instruction >> 24);
   SPI.transfer(instruction >> 16);
   id = SPI.transfer(0x00) << 8;
+  instruction &= 0x0;
+  instruction |= 0x8002 << 16;
+  SPI.transfer(instruction >> 24);
+  SPI.transfer(instruction >> 16);
   id |= SPI.transfer(0x00);
   return id;
 }
