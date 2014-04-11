@@ -78,17 +78,23 @@ void setup()
 
 void loop()
 {
+  delay(20);
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH1) == LOW) {
     DDS_spi_init();
-    delay(5);
   }
-  if(digitalRead(PUSH2) == LOW) {
+  else if(digitalRead(PUSH2) == LOW) {
     DDS_spi_read();
     Serial.println("Current Status");
     Serial.print("DAC Read: ");
     Serial.print(readFreqDAC[2], HEX);
     Serial.println();
+  }
+  else {
+    Serial.print("Part ID: ");
+    Serial.print(get_part_id(), HEX);
+    Serial.println("");
+    delay(20);
   }
 }
 
