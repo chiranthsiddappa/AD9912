@@ -2,6 +2,8 @@
 #include <string.h>
 #include <SPI.h>
 
+#define PartID 0x1902
+
 #define PB4 0x7
 #define SPISCK PB4
 
@@ -115,6 +117,18 @@ void DDS_spi_read() {
   readFreqDAC[2] |= SPI.transfer(0x00);
 }
 
+unsigned int get_part_id() {
+  unsigned int id;
+  instruction &= 0x0;
+  instruction |= 0x5 << 29;
+  instruction |= 0x0003 << 16;
+  SPI.transfer(instruction >> 24);
+  SPI.transfer(instruction >> 16);
+  id = SPI.transfer(0x00) << 8;
+  id |= SPI.transfer(0x00);
+  return id;
+}
+
 void DDS_spi_write_freq() {
   
 }
@@ -145,10 +159,6 @@ void flash_green() {
   digitalWrite(GREEN_LED, HIGH);
   delay(20);
   digitalWrite(GREEN_LED, LOW);
-}
-
-void spi_read_test() {
-  
 }
 
 void maxInt() {
