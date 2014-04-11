@@ -63,7 +63,7 @@ void setup()
   //Initialize SPI bus
   SPI.begin();
   SPI.setModule(2);
-  SPI.setClockDivider(16);
+  SPI.setClockDivider(32); // 500 kHz 
   SPI.setDataMode(SPI_MODE0);
   SPI.setBitOrder(MSBFIRST);
   //other pin testing
@@ -94,7 +94,7 @@ void loop()
 
 void DDS_spi_init() {
   //4 wire command for SPIMISO
-  instruction = 0x000098;
+  instruction = 0x000099;
   SPI.transfer(instruction >> 16);
   SPI.transfer(instruction >> 8);
   SPI.transfer(instruction);
@@ -104,7 +104,7 @@ void DDS_spi_read() {
   //use the global readFreqDAC
   instruction &= 0x0;
   instruction |= 0x5 << 29;
-  instruction |= DAC_fsc_1 << 16;
+  instruction |= DAC_fsc_2 << 16;
   /*  Serial.print("Instruction DAC read: ");
   Serial.print(instruction >> 16, BIN);
   Serial.println("");
