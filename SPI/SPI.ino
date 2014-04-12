@@ -198,3 +198,15 @@ void maxShort() {
   Serial.println("");
   delay(10);
 }
+
+unsigned int PartID_shift() {
+  unsigned int id = 0x00;
+  instruction = 0x8003;
+  digitalWrite(SPICS, HIGH);
+  digitalWrite(SPICS, LOW);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction); // might work
+  id |= shiftIn(SPIMISO, SPISCK, MSBFIRST);
+  id |= shiftIn(SPIMISO, SPISCK, MSBFIRST);
+  digitalWrite(SPICS, HIGH);
+  return id;
+}
