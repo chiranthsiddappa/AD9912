@@ -33,7 +33,7 @@
 
 //DDS Default values and maxes
 #define DAC_fcs_default 0x01FF
-#define DAC_fcs_max 0x03FF;
+#define DAC_fcs_max 0x03FF
 
 //test pin
 #define curr_test_pin 4
