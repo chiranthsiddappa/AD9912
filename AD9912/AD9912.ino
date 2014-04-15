@@ -34,6 +34,7 @@ void setup()
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
+  AD9912 dds(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
   flash_green();
@@ -45,7 +46,7 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    //    partID_res = read_PartID(); //Needs initialization of AD9912 class, not initialized yet
+    partID_res = dds.read_PartID();
     delay(20);
   }
   Serial.print("Part ID: ");

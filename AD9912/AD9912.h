@@ -26,43 +26,63 @@
 #define DAC_fcs_max 0x03FF
 
 class AD9912 {
-// global type variables
-  uint SPISCK;
-  uint SPIMISO;
-  uint SPIMOSI;
-  uint SPICS;
+ public:
+  AD9912(uint SPI_CS, uint SPI_SCK, uint SPI_MOSI, uint SPI_MISO, uint DDS_IO_update);
+  uint16_t read_PartID();
+ private:
+  // global type variables
+  uint _SPISCK;
+  uint _SPIMISO;
+  uint _SPIMOSI;
+  uint _SPICS;
   uint IO_update;
-unsigned char spi_data[4];
-unsigned int freqWordArray[2];
-unsigned int DAC_fsc;
-unsigned int readFreqDAC[3];
-unsigned int instruction;
-// uint16_t read_PartID();
+  unsigned char spi_data[4];
+  unsigned int freqWordArray[2];
+  unsigned int DAC_fsc;
+  unsigned int readFreqDAC[3];
+  unsigned int instruction;
+  // uint16_t read_PartID();
 
-uint16_t read_PartID() {
-  unsigned int id;
-  instruction = 0x8003;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
-  digitalWrite(SPICS, HIGH);
+};
+
+AD9912::AD9912(uint SPI_CS, uint SPI_SCK, uint SPI_MOSI, uint SPI_MISO, uint DDS_IO_update) {
+  _SPICS = SPI_CS;
+  pinMode(SPI_CS, OUTPUT);
+  _SPISCK = SPI_SCK;
+  pinMode(SPI_SCK, OUTPUT);
+  _SPIMOSI = SPI_MOSI;
+  pinMode(SPI_MOSI, OUTPUT);
+  _SPIMISO = SPI_MISO;
+  pinMode(SPI_MISO, INPUT);
+  digitalWrite(_SPICS, HIGH);
+  digitalWrite(_SPISCK, LOW);
+  digitalWrite(_SPIMOSI, LOW);
+}
+
+uint16_t AD9912::read_PartID() {
+  uint16_t id;
+  uint32_t instruction = 0x8003;
+  digitalWrite(_SPICS, HIGH);
+  pinMode(_SPIMOSI, OUTPUT);
+  digitalWrite(_SPICS, LOW);
+  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction >> 8);
+  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction);
+  digitalWrite(_SPIMOSI, LOW);
+  pinMode(_SPIMOSI, INPUT);
+  id |= shiftIn(_SPIMOSI, _SPISCK, MSBFIRST) << 8;
+  digitalWrite(_SPICS, HIGH);
   delay(0.5);
   instruction = 0x8002;
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
-  digitalWrite(SPICS, HIGH);
+  pinMode(_SPIMOSI, OUTPUT);
+  digitalWrite(_SPIMOSI, LOW);
+  digitalWrite(_SPICS, LOW);
+  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction >> 8);
+  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction);
+  digitalWrite(_SPIMOSI, LOW);
+  pinMode(_SPIMOSI, INPUT);
+  id |= shiftIn(_SPIMOSI, _SPISCK, MSBFIRST);
+  digitalWrite(_SPICS, HIGH);
   delay(2);
   return id;
 }
-};
 #endif
