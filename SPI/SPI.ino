@@ -72,6 +72,8 @@ void setup()
   pinMode(curr_test_pin, INPUT);
   pinMode(PUSH1, INPUT_PULLUP); // PUSH1 is for reset on DDS
   pinMode(PUSH2, INPUT_PULLUP);
+  //DDS init function
+  DDS_spi_init();
   //All done
   flash_green();
 }
@@ -79,12 +81,7 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  if(digitalRead(PUSH1) == LOW) {
-    delay(20);
-    DDS_spi_init();
-    delay(20);
-  }
-  else if(digitalRead(PUSH2) == LOW) {
+  if(digitalRead(PUSH2) == LOW) {
     DDS_spi_read();
     Serial.println("Current Status");
     Serial.print("DAC Read: ");
@@ -93,18 +90,15 @@ void loop()
     delay(20);
   }
   else {
-    /*
     Serial.print("Part ID: ");
     Serial.print(get_part_id(), HEX);
     Serial.println("");
-    */
     get_part_id();
     delay(20);
   }
 }
 
 //Custom functions here
-
 void DDS_spi_init() {
   //4 wire command for SPIMISO
   instruction = 0x000099;

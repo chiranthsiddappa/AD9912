@@ -69,7 +69,7 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    read_PartID();
+    partID_res = read_PartID();
     delay(20);
   }
   Serial.print("Part ID: ");
@@ -90,19 +90,23 @@ unsigned int read_PartID() {
   unsigned int id;
   instruction = 0x8003;
   digitalWrite(SPICS, HIGH);
+  pinMode(SPIMOSI, OUTPUT);
   digitalWrite(SPICS, LOW);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
   digitalWrite(SPIMOSI, LOW);
-  id |= shiftIn(SPIMISO, SPISCK, MSBFIRST) << 16;
+  pinMode(SPIMOSI, INPUT);
+  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
   digitalWrite(SPICS, HIGH);
   delay(0.5);
   instruction = 0x8002;
+  pinMode(SPIMOSI, OUTPUT);
   digitalWrite(SPICS, LOW);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
   digitalWrite(SPIMOSI, LOW);
-  id |= shiftIn(SPIMISO, SPISCK, MSBFIRST);
+  pinMode(SPIMOSI, INPUT);
+  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
   digitalWrite(SPICS, HIGH);
   delay(2);
   return id;
