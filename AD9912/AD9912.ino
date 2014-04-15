@@ -18,6 +18,8 @@
 #define PF3 GREEN_LED
 #define IO_update PF3
 
+AD9912 ad9912(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -34,7 +36,6 @@ void setup()
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
-  AD9912 dds(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
   flash_green();
@@ -46,7 +47,7 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    partID_res = dds.read_PartID();
+    partID_res = ad9912.read_PartID();
     delay(20);
   }
   Serial.print("Part ID: ");
