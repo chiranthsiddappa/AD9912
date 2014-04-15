@@ -10,6 +10,7 @@
 #define PD1 15
 #define PD0 14
 
+LiquidCrystal_I2C lcd(0x3F,20,4);
 
 void setup()
 {
@@ -22,7 +23,6 @@ void setup()
   pinMode(I2C3SLA, INPUT_PULLUP);
   pinMode(I2C3SCL, INPUT_PULLUP);
   Serial.begin(115200);
-  LiquidCrystal_I2C lcd(0x3F,20,4);
   lcd.init();
   lcd.backlight();
   lcd.print("01234567890123456789");
