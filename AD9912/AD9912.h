@@ -2,7 +2,6 @@
    Written by Chiranth Siddappa
 */
 
-#ifndef ADD912_h
 #include <SPI.h>
 #include <Wire.h>
 #include <stdint.h>
@@ -85,4 +84,3 @@ uint16_t AD9912::read_PartID() {
   delay(2);
   return id;
 }
-#endif
