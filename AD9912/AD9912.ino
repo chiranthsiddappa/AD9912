@@ -57,6 +57,7 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
+    delay(150);
     ad9912_frequency_sweep();
   }
 }
@@ -209,7 +210,7 @@ void ad9912_FTW_write(uint64_t FTW) {
 
 uint ad9912_frequency_sweep() {
   uint64_t orig_FTW = ad9912_FTW_read();
-  for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFFFul; FTW_set += 268435456l) {
+  for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFFEul; FTW_set += 536870912l) {
     ad9912_FTW_write(FTW_set);
     if(digitalRead(PUSH2) == LOW) {
       ad9912_FTW_write(orig_FTW);
