@@ -57,17 +57,18 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    DAC_fsc_set = (DAC_fsc_read == 0x3FF) ? 0x0 : DAC_fsc_read + 0x1;
-    ad9912_DAC_write(DAC_fsc_set);
-    DAC_fsc_read = ad9912_DAC_read();
     delay(20);
+    DAC_fsc_set = (DAC_fsc_read == 0x3FF) ? 0x0 : DAC_fsc_read + 0x1;
+    //ad9912_DAC_write(DAC_fsc_set);
+    DAC_fsc_read = ad9912_DAC_read();
   }
+  /*
   Serial.print("DAC FSC: ");
   Serial.print(DAC_fsc_read, HEX);
   Serial.println("");
   Serial.print("FTW: ");
   Serial.println("");
-
+  */
   delay(20);
 }
 
@@ -151,10 +152,8 @@ void ad9912_DAC_write(uint16_t DAC_val) {
   digitalWrite(SPIMOSI, OUTPUT);
 }
 
-/*
-unsigned long long ad9912_FTW_read() {
+void ad9912_FTW_read() {
   uint16_t instruction = 0x0;
-  unsigned long long data = 0x0;
   instruction |= 0x7 << 13;
   instruction |= 0x01AB;
   digitalWrite(SPICS, HIGH);
@@ -163,20 +162,18 @@ unsigned long long ad9912_FTW_read() {
   digitalWrite(SPICS, LOW);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, INPUT);
+  digitalWrite(SPIMOSI, LOW);
   pinMode(SPIMOSI, INPUT);
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 40;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 32;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 24;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 16;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
+  FTW_read_msb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
+  FTW_read_msb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
+  FTW_read_lsb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 24;
+  FTW_read_lsb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 16;
+  FTW_read_lsb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
+  FTW_read_lsb |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
   digitalWrite(SPICS, HIGH);
   delay(0.5);
   pinMode(SPIMOSI, OUTPUT);
-  return data;
 }
-*/
 
 void ad9912_instruction(short command, byte bytes, uint32_t data) {
   uint16_t instruction = 0x0;
@@ -185,13 +182,21 @@ void ad9912_instruction(short command, byte bytes, uint32_t data) {
 
 void ad9912_FTW_write(uint32_t FTW_msb, uint32_t FTW_lsb) {
   uint16_t instruction = 0x0;
-  
+  instruction |= 0x3 << 13;
+  instruction |= 0x01AB;
+  digitalWrite(SPICS, HIGH);
+  pinMode(SPIMOSI, OUTPUT);
+  digitalWrite(SPIMOSI, LOW);
+  digitalWrite(SPICS, LOW);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_msb >> 8);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_msb);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 24);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 16);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 8);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb);
   digitalWrite(IO_update, HIGH);
   delay(0.5);
   digitalWrite(IO_update, LOW);
-}
-
-//accesses the data members directly
-void ad9912_FTW_read() {
-  
 }
