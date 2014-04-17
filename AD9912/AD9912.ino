@@ -57,20 +57,21 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    delay(20);
-    DAC_fsc_read = ad9912_DAC_read();
     FTW_read = ad9912_FTW_read();
+    DAC_fsc_read = ad9912_DAC_read();
+    Serial.print("DAC FSC: ");
+    Serial.print(DAC_fsc_read, HEX);
+    Serial.println("");
+    Serial.print("FTW: ");
+    Serial.print((uint32_t) (FTW_read >> 32), HEX);
+    Serial.print((uint32_t) (FTW_read), HEX);
+    Serial.println("");
+    delay(100);
   }
-  Serial.print("DAC FSC: ");
-  Serial.print(DAC_fsc_read, HEX);
-  Serial.println("");
-  Serial.print("FTW: ");
-  Serial.print((uint32_t) (FTW_read >> 32), HEX);
-  Serial.print((uint32_t) (FTW_read), HEX);
-  Serial.println("");
-  delay(20);
-  //  ad9912_FTW_write(FTW_set);
-  delay(20);
+  for(FTW_set = ad9912_FTW_read(); FTW_set <= 0xFFFFFFFFFFFFul; FTW_set += 2048) {
+    ad9912_FTW_write(FTW_set);
+  }
+  ad9912_FTW_write(0x0);
 }
 
 void flash_green() {
