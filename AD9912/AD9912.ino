@@ -57,21 +57,8 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    FTW_read = ad9912_FTW_read();
-    DAC_fsc_read = ad9912_DAC_read();
-    Serial.print("DAC FSC: ");
-    Serial.print(DAC_fsc_read, HEX);
-    Serial.println("");
-    Serial.print("FTW: ");
-    Serial.print((uint32_t) (FTW_read >> 32), HEX);
-    Serial.print((uint32_t) (FTW_read), HEX);
-    Serial.println("");
-    delay(100);
+    ad9912_frequency_sweep();
   }
-  for(FTW_set = ad9912_FTW_read(); FTW_set <= 0xFFFFFFFFFFFFul; FTW_set += 2048) {
-    ad9912_FTW_write(FTW_set);
-  }
-  ad9912_FTW_write(0x0);
 }
 
 void flash_green() {
@@ -218,4 +205,17 @@ void ad9912_FTW_write(uint64_t FTW) {
   for(int i = 0; i < 512; i++)
     delay(0.5);
   digitalWrite(IO_update, LOW);
+}
+
+uint ad9912_frequency_sweep() {
+  uint64_t orig_FTW = ad9912_FTW_read();
+  for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFFFul; FTW_set += 268435456l) {
+    ad9912_FTW_write(FTW_set);
+    if(digitalRead(PUSH2) == LOW) {
+      ad9912_FTW_write(orig_FTW);
+      return 0;
+    }
+  }
+  ad9912_FTW_write(orig_FTW);
+  return 1;
 }
