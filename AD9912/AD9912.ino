@@ -70,6 +70,8 @@ void loop()
   Serial.println("");
   */
   delay(20);
+  ad9912_FTW_write(0xFFFF, 0xFFFFFFFF);
+  delay(20);
 }
 
 void flash_green() {
@@ -196,7 +198,12 @@ void ad9912_FTW_write(uint32_t FTW_msb, uint32_t FTW_lsb) {
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 16);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 8);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb);
-  digitalWrite(IO_update, HIGH);
+  digitalWrite(SPICS, HIGH);
+  pinMode(SPIMOSI, OUTPUT);
+  digitalWrite(SPIMOSI, LOW);
   delay(0.5);
+  digitalWrite(IO_update, HIGH);
+  for(int i = 0; i < 512; i++)
+    delay(0.5);
   digitalWrite(IO_update, LOW);
 }
