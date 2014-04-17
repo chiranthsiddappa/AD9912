@@ -70,7 +70,7 @@ void loop()
   Serial.println("");
   */
   delay(20);
-  ad9912_FTW_write(FTW_set >> 32, FTW_set);
+  ad9912_FTW_write(FTW_set);
   delay(20);
 }
 
@@ -182,7 +182,7 @@ void ad9912_instruction(short command, byte bytes, uint32_t data) {
 
 }
 
-void ad9912_FTW_write(uint32_t FTW_msb, uint32_t FTW_lsb) {
+void ad9912_FTW_write(uint64_t FTW) {
   uint16_t instruction = 0x0;
   instruction |= 0x3 << 13;
   instruction |= 0x01AB;
@@ -192,12 +192,12 @@ void ad9912_FTW_write(uint32_t FTW_msb, uint32_t FTW_lsb) {
   digitalWrite(SPICS, LOW);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
   shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_msb >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_msb);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 24);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 16);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW_lsb);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 40);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 32);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 24);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 16);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 8);
+  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW);
   digitalWrite(SPICS, HIGH);
   pinMode(SPIMOSI, OUTPUT);
   digitalWrite(SPIMOSI, LOW);
