@@ -50,8 +50,8 @@ uint16_t DAC_fsc_read;
 uint16_t DAC_fsc_set;
 uint32_t FTW_read_msb;
 uint32_t FTW_read_lsb;
-uint32_t FTW_set_msb;
-uint32_t FTW_set_lsb;
+
+uint64_t FTW_set = 0xFFFFFFFFFFFF;
 
 void loop()
 {
@@ -70,7 +70,7 @@ void loop()
   Serial.println("");
   */
   delay(20);
-  ad9912_FTW_write(0xFFFF, 0xFFFFFFFF);
+  ad9912_FTW_write(FTW_set >> 32, FTW_set);
   delay(20);
 }
 
