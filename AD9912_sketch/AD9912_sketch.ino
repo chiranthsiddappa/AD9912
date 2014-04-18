@@ -37,9 +37,10 @@ void setup()
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
+  ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
-  if(ad9912_read_PartID() == 0x1902)
+  if(ad9912.read_PartID() == 0x1902)
     flash_green();
   else 
     flash_red();
@@ -60,6 +61,8 @@ void loop()
     delay(150);
     ad9912_frequency_sweep();
   }
+  delay(100);
+  ad9912.instruction(0x0, 0x3, 8, 0x0102030405060708);
 }
 
 void flash_green() {
@@ -167,7 +170,7 @@ uint64_t ad9912_FTW_read() {
   return FTW;
 }
 
-uint64_t ad9912_instruction(short command, uint16_t address, byte bytes, uint32_t data) {
+uint64_t ad9912_instruction(short command, uint16_t address, byte bytes, uint64_t data) {
   uint16_t instruction = 0x0;
   uint64_t return_data;
   instruction |= command << 16;
@@ -210,7 +213,7 @@ void ad9912_FTW_write(uint64_t FTW) {
 
 uint ad9912_frequency_sweep() {
   uint64_t orig_FTW = ad9912_FTW_read();
-  for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFFEul; FTW_set += 536870912l) {
+  for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFEul; FTW_set += 536870912l) {
     ad9912_FTW_write(FTW_set);
     if(digitalRead(PUSH2) == LOW) {
       ad9912_FTW_write(orig_FTW);

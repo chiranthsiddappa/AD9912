@@ -5,10 +5,13 @@
 #ifndef AD9912_h
 #define AD9912_h
 
+#include <Arduino.h>
 #include <inttypes.h>
 #include <Wire.h>
 
 #define PartID 0x1902
+#define ad9912_read 0x1
+#define ad9912_write 0x0
 
 //DDS Register Addresses
 //LSB
@@ -28,20 +31,15 @@
 
 class AD9912 {
  public:
+  void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update );
   uint16_t read_PartID();
+  uint64_t instruction(short command, uint16_t address, char bytes, uint64_t data);
  private:
   // global type variables
   uint _SPISCK;
   uint _SPIMISO;
   uint _SPIMOSI;
   uint _SPICS;
-  uint IO_update;
-  unsigned char spi_data[4];
-  unsigned int freqWordArray[2];
-  unsigned int DAC_fsc;
-  unsigned int readFreqDAC[3];
-  unsigned int instruction;
-  // uint16_t read_PartID();
-
+  uint _IO_update;
 };
 #endif
