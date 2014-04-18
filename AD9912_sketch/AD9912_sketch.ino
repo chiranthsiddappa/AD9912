@@ -62,7 +62,6 @@ void loop()
     ad9912_frequency_sweep();
   }
   delay(100);
-  ad9912.instruction(0x0, 0x3, 8, 0x0102030405060708);
 }
 
 void flash_green() {

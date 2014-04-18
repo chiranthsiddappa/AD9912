@@ -19,33 +19,12 @@ void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_u
 
 uint16_t AD9912::read_PartID() {
   uint16_t id;
-  uint32_t instruction = 0x8003;
-  digitalWrite(_SPICS, HIGH);
-  pinMode(_SPIMOSI, OUTPUT);
-  digitalWrite(_SPICS, LOW);
-  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction);
-  digitalWrite(_SPIMOSI, LOW);
-  pinMode(_SPIMOSI, INPUT);
-  id |= shiftIn(_SPIMOSI, _SPISCK, MSBFIRST) << 8;
-  digitalWrite(_SPICS, HIGH);
-  delay(0.5);
-  instruction = 0x8002;
-  pinMode(_SPIMOSI, OUTPUT);
-  digitalWrite(_SPIMOSI, LOW);
-  digitalWrite(_SPICS, LOW);
-  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction);
-  digitalWrite(_SPIMOSI, LOW);
-  pinMode(_SPIMOSI, INPUT);
-  id |= shiftIn(_SPIMOSI, _SPISCK, MSBFIRST);
-  digitalWrite(_SPICS, HIGH);
-  delay(2);
+  id = AD9912::instruction(0x1, 0x3, 2, 0x0);
   return id;
 }
 
 uint64_t AD9912::instruction(short command, uint16_t address, char bytes, uint64_t data) {
-  uint64_t instruction = 0x0;
+  uint16_t instruction = 0x0;
   uint64_t return_data = 0x0;
   short nthByte;
   uint32_t shiftAmount;
@@ -57,6 +36,10 @@ uint64_t AD9912::instruction(short command, uint16_t address, char bytes, uint64
     return 0;
   instruction |= command << 15;
   instruction |= address & 0x7FF;
+  Serial.print("Instruction: ");
+  Serial.print(instruction, BIN);
+  Serial.println();
+  delay(100);
   pinMode(_SPIMOSI, OUTPUT);
   digitalWrite(_SPICS, HIGH);
   digitalWrite(_SPICS, LOW);
