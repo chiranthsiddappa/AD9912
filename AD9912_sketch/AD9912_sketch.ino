@@ -1,9 +1,8 @@
 #include <Wire.h>
 #include <string.h>
 #include <SPI.h>
-#include "AD9912.h"
 #include <stdint.h>
-
+#include "AD9912.h"
 
 #define PB4 0x7
 #define SPISCK PB4
@@ -21,6 +20,7 @@
 #define IO_update PF3
 
 //AD9912 ad9912(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
+AD9912 ad9912;
 
 void setup()
 {
