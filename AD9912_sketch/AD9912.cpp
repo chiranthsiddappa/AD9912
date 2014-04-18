@@ -9,12 +9,13 @@
 #include <inttypes.h>
 #include <SPI.h>
 
-void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update) {
+void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint64_t fs) {
   _SPICS = SPICS;
   _SPISCK = SPISCK;
   _SPIMOSI = SPIMOSI;
   _SPIMISO = SPIMISO;
   _IO_update = IO_update;
+  _fs = fs;
 }
 
 uint16_t AD9912::read_PartID() {
@@ -78,4 +79,14 @@ uint64_t AD9912::FTW_read() {
 
 void AD9912::FTW_write(uint64_t FTW) {
   AD9912::instruction(0x0, 0x1AB, 6, FTW);
+}
+
+void AD9912::setFrequency(uint64_t fDDS) {
+  uint64_t FTW;
+  FTW = (uint64_t) (281474976710656 * (fDDS / (double) _fs));
+  AD9912::FTW_write(FTW);
+}
+
+void AD9912::updateClkFreq(uint64_t fs) {
+  _fs = fs;
 }

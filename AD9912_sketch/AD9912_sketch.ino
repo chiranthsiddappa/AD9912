@@ -37,7 +37,7 @@ void setup()
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
-  ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
+  ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update, 1000000000);
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
   if(ad9912.read_PartID() == 0x1902)
@@ -58,8 +58,8 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    delay(150);
-    ad9912_frequency_sweep();
+    ad9912.setFrequency(19440000);
+    //ad9912_frequency_sweep();
   }
   delay(100);
 }
@@ -78,34 +78,6 @@ void flash_red() {
   digitalWrite(RED_LED, HIGH);
   delay(20);
   digitalWrite(RED_LED, LOW);
-}
-
-unsigned long long ad9912_read_PartID() {
-  uint16_t id;
-  unsigned long long instruction = 0x8003;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
-  digitalWrite(SPICS, HIGH);
-  delay(0.5);
-  instruction = 0x8002;
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPIMOSI, LOW);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  id |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  delay(2);
-  return id;
 }
 
 uint16_t ad9912_DAC_read () {
@@ -167,21 +139,6 @@ uint64_t ad9912_FTW_read() {
   delay(0.5);
   pinMode(SPIMOSI, OUTPUT);
   return FTW;
-}
-
-uint64_t ad9912_instruction(short command, uint16_t address, byte bytes, uint64_t data) {
-  uint16_t instruction = 0x0;
-  uint64_t return_data;
-  instruction |= command << 16;
-  if(bytes > 2) {
-    
-  }
-  if(command) {
-    return return_data;
-  }
-  else {
-    return 0;
-  }
 }
 
 void ad9912_FTW_write(uint64_t FTW) {
