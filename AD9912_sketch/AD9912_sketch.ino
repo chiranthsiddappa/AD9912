@@ -58,10 +58,9 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    ad9912.setFrequency(19440000);
-    //ad9912_frequency_sweep();
+    ad9912.setFrequency(190440000);
   }
-  delay(100);
+  delay(5);
 }
 
 void flash_green() {
