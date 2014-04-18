@@ -34,6 +34,10 @@ class AD9912 {
   void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update );
   uint16_t read_PartID();
   uint64_t instruction(short command, uint16_t address, char bytes, uint64_t data);
+  uint16_t DAC_read();
+  void DAC_write(uint16_t DAC_val);
+  uint64_t FTW_read();
+  void FTW_write(uint64_t FTW);
  private:
   // global type variables
   uint _SPISCK;

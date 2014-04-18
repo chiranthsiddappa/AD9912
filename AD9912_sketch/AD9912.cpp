@@ -59,3 +59,23 @@ uint64_t AD9912::instruction(short command, uint16_t address, char bytes, uint64
   pinMode(_SPIMOSI, OUTPUT);
   return return_data;
 }
+
+uint16_t AD9912::DAC_read() {
+  uint16_t data;
+  data = AD9912::instruction(0x1, 0x40C, 2, 0x0);
+  return data;
+}
+
+void AD9912::DAC_write(uint16_t DAC_val) {
+  AD9912::instruction(0x0, 0x40C, 2, DAC_val);
+}
+
+uint64_t AD9912::FTW_read() {
+  uint64_t FTW;
+  FTW = AD9912::instruction(0x1, 0x1AB, 6, 0x0);
+  return FTW;
+}
+
+void AD9912::FTW_write(uint64_t FTW) {
+  AD9912::instruction(0x0, 0x1AB, 6, FTW);
+}
