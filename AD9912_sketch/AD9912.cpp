@@ -37,14 +37,11 @@ uint64_t AD9912::instruction(short command, uint16_t address, char bytes, uint64
     return 0;
   instruction |= command << 15;
   instruction |= address & 0x7FF;
-  Serial.print("Instruction: ");
-  Serial.print(instruction, BIN);
-  Serial.println();
-  delay(100);
   pinMode(_SPIMOSI, OUTPUT);
   digitalWrite(_SPICS, HIGH);
   digitalWrite(_SPICS, LOW);
   shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction >> 8);
+  shiftOut(_SPIMOSI, _SPISCK, MSBFIRST, instruction);
   if(command & 0x1) {
     digitalWrite(_SPIMOSI, LOW);
     pinMode(_SPIMOSI, INPUT);
@@ -85,6 +82,10 @@ void AD9912::setFrequency(uint64_t fDDS) {
   uint64_t FTW;
   FTW = (uint64_t) (281474976710656 * (fDDS / (double) _fs));
   AD9912::FTW_write(FTW);
+  digitalWrite(_IO_update, HIGH);
+  for(int i = 0; i < 512; i++)
+    delay(0.5);
+  digitalWrite(_IO_update, LOW);
 }
 
 void AD9912::updateClkFreq(uint64_t fs) {
