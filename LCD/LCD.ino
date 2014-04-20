@@ -10,7 +10,7 @@
 #define PE5 6
 #define PE4 5
 
-LiquidCrystal_I2C lcd(0x3F,20,4);
+LiquidCrystal_I2C lcd(0x3F,20,4,3);
 
 void setup()
 {
@@ -19,16 +19,17 @@ void setup()
   pinMode(RED_LED, OUTPUT);
   pinMode(BLUE_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
-  pinMode(17, INPUT_PULLUP);
-  pinMode(18, INPUT_PULLUP);
-  pinMode(0x30003, INPUT_PULLUP);
-  /*
+  pinMode(PD_1, INPUT_PULLUP);
+  pinMode(PD_0, INPUT_PULLUP);
+  pinMode(PD_1, INPUT_PULLUP);
+  Serial.print(PD_0, HEX);
+  Serial.print(" ");
+  Serial.print(PD_1, HEX);
+  Serial.println();
   Wire.begin();
   Wire.setModule(3);
   lcd.init();
   lcd.backlight();
-  */
-  /*
   lcd.print("01234567890123456789");
   lcd.setCursor(0,1);
   lcd.print("Line 2");
@@ -36,22 +37,19 @@ void setup()
   lcd.print("Line 3");
   lcd.setCursor(0,3);
   lcd.print("Line 4");
-  digitalWrite(PA_6, HIGH);
-  digitalWrite(PA_7, HIGH);
-  */
 }
 
 void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(I2C2SLA) == LOW)
-    //flash_blue();
+    flash_blue();
   if(digitalRead(I2C2SCL) == LOW)
-    //flash_red();
+    flash_red();
   delay(10);
-  Serial.print(PD_0, HEX);
+  Serial.print(PE_4, HEX);
   Serial.print(" ");
-  Serial.print(PD_1, HEX);
+  Serial.print(PE_5, HEX);
   Serial.println();
 }
 

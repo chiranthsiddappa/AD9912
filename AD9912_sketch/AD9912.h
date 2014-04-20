@@ -7,6 +7,7 @@
 
 #include <Arduino.h>
 #include <inttypes.h>
+#include <SPI.h>
 
 #define ad9912_PartID 0x1902
 #define ad9912_read 0x1

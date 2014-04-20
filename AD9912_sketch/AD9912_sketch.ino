@@ -1,8 +1,7 @@
 #include <Wire.h>
-#include <string.h>
-#include <SPI.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <SPI.h>
 #include "AD9912.h"
 #include "LiquidCrystal_I2C.h"
 
@@ -21,15 +20,16 @@
 #define PF3 GREEN_LED
 #define IO_update PF3
 
-#define I2C2SLA 15
-#define I2C2SCL 14
+#define PD0 0x17
+#define PD1 0x18
+#define I2C2SLA PD1
+#define I2C2SCL PD0
 
 AD9912 ad9912;
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 void setup()
 {
-  /*
   pinMode(I2C2SLA, INPUT_PULLUP);
   pinMode(I2C2SCL, INPUT_PULLUP);
   Wire.begin();
@@ -37,7 +37,6 @@ void setup()
   lcd.init();
   lcd.backlight();
   lcd.print("Initializing...");
-  */
   // put your setup code here, to run once:
   pinMode(BLUE_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
@@ -52,16 +51,17 @@ void setup()
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
   ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update, 1000000000);
-  //  lcd.clearRow(0);
-  //  lcd.print("AD9912 Module Init");
+  lcd.clearRow(0);
+  lcd.print("AD9912 Module Init");
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
+  lcd.setCursor(0,1);
   if(ad9912.read_PartID() == 0x1902) {
-    //lcd.print("Chip Found");
+    lcd.print("Chip Found");
     flash_green();
   }
   else {
-    //lcd.print("Chip Not Found");
+    lcd.print("Chip Not Found");
     flash_red();
   }
 }
@@ -81,9 +81,11 @@ void loop()
     //    ad9912.setFrequency(190440000);
     ad9912.read_PartID();
   }
+  Serial.print(PD_0, HEX);
+  Serial.print(" ");
+  Serial.print(PD_1, HEX);
+  Serial.println();
   delay(5);
-  Serial.print(PB_7, HEX);
-  Serial.println("");
 }
 
 void flash_green() {
