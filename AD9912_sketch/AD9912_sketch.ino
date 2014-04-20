@@ -2,7 +2,9 @@
 #include <string.h>
 #include <SPI.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include "AD9912.h"
+#include "LiquidCrystal_I2C.h"
 
 #define PB4 0x7
 #define SPISCK PB4
@@ -10,7 +12,7 @@
 #define PB6 23
 #define SPIMISO PB6
 
-#define PB7 24
+#define PB7 0xF
 #define SPIMOSI PB7
 
 #define PB5 0x2
@@ -19,11 +21,23 @@
 #define PF3 GREEN_LED
 #define IO_update PF3
 
-//AD9912 ad9912(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update);
+#define I2C2SLA 15
+#define I2C2SCL 14
+
 AD9912 ad9912;
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 void setup()
 {
+  /*
+  pinMode(I2C2SLA, INPUT_PULLUP);
+  pinMode(I2C2SCL, INPUT_PULLUP);
+  Wire.begin();
+  Wire.setModule(3);
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Initializing...");
+  */
   // put your setup code here, to run once:
   pinMode(BLUE_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
@@ -31,19 +45,25 @@ void setup()
   //Initialize other DDS pins
   pinMode(IO_update, OUTPUT);
   pinMode(SPISCK, OUTPUT);
-  pinMode(SPIMISO, INPUT);
+  //  pinMode(SPIMISO, INPUT);
   pinMode(SPIMOSI, OUTPUT);
   pinMode(SPICS, OUTPUT);
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
   ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update, 1000000000);
+  //  lcd.clearRow(0);
+  //  lcd.print("AD9912 Module Init");
   //push buttons
   pinMode(PUSH2, INPUT_PULLUP);
-  if(ad9912.read_PartID() == 0x1902)
+  if(ad9912.read_PartID() == 0x1902) {
+    //lcd.print("Chip Found");
     flash_green();
-  else 
+  }
+  else {
+    //lcd.print("Chip Not Found");
     flash_red();
+  }
 }
 
 uint16_t partID_res;
@@ -58,9 +78,12 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    ad9912.setFrequency(190440000);
+    //    ad9912.setFrequency(190440000);
+    ad9912.read_PartID();
   }
   delay(5);
+  Serial.print(PB_7, HEX);
+  Serial.println("");
 }
 
 void flash_green() {
@@ -79,102 +102,22 @@ void flash_red() {
   digitalWrite(RED_LED, LOW);
 }
 
-uint16_t ad9912_DAC_read () {
-  uint16_t instruction = 0x0;
-  uint16_t data = 0x0;
-  instruction |= 0x5 << 13;
-  instruction |= 0x40C;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
-  data |= shiftIn(SPIMOSI, SPISCK, MSBFIRST);
-  digitalWrite(SPICS, HIGH);
-  delay(0.5);
-  pinMode(SPIMOSI, OUTPUT);
-  return data;
-}
-
-void ad9912_DAC_write(uint16_t DAC_val) {
-  uint16_t instruction = 0x0;
-  instruction |= 0x1 << 13;
-  instruction |= 0x40C;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, DAC_val >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, DAC_val);
-  digitalWrite(SPICS, HIGH);
-  delay(0.5);
-  digitalWrite(SPIMOSI, OUTPUT);
-}
-
-uint64_t ad9912_FTW_read() {
-  uint16_t instruction = 0x0;
-  uint64_t FTW = 0x0ULL;
-  instruction |= 0x7 << 13;
-  instruction |= 0x01AB;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPIMOSI, LOW);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  digitalWrite(SPIMOSI, LOW);
-  pinMode(SPIMOSI, INPUT);
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 40;
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 32;
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 24;
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 16;
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST) << 8;
-  FTW |= (uint64_t) shiftIn(SPIMOSI, SPISCK, MSBFIRST);
-  digitalWrite(SPICS, HIGH);
-  delay(0.5);
-  pinMode(SPIMOSI, OUTPUT);
-  return FTW;
-}
-
-void ad9912_FTW_write(uint64_t FTW) {
-  uint16_t instruction = 0x0;
-  instruction |= 0x3 << 13;
-  instruction |= 0x01AB;
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPIMOSI, LOW);
-  digitalWrite(SPICS, LOW);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, instruction);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 40);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 32);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 24);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 16);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW >> 8);
-  shiftOut(SPIMOSI, SPISCK, MSBFIRST, FTW);
-  digitalWrite(SPICS, HIGH);
-  pinMode(SPIMOSI, OUTPUT);
-  digitalWrite(SPIMOSI, LOW);
-  delay(0.5);
-  digitalWrite(IO_update, HIGH);
-  for(int i = 0; i < 512; i++)
-    delay(0.5);
-  digitalWrite(IO_update, LOW);
-}
-
 uint ad9912_frequency_sweep() {
-  uint64_t orig_FTW = ad9912_FTW_read();
+  uint64_t orig_FTW = ad9912.FTW_read();
   for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFEul; FTW_set += 536870912l) {
-    ad9912_FTW_write(FTW_set);
+    ad9912.FTW_write(FTW_set);
     if(digitalRead(PUSH2) == LOW) {
-      ad9912_FTW_write(orig_FTW);
+      ad9912.FTW_write(orig_FTW);
       return 0;
     }
   }
-  ad9912_FTW_write(orig_FTW);
+  ad9912.FTW_write(orig_FTW);
   return 1;
+}
+
+void LCD_clear_row(short row) {
+  for(int i = 1; i <= 20; i++) {
+    lcd.setCursor(row, i);
+    lcd.print(" ");
+  }
 }

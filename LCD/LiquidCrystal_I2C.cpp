@@ -217,8 +217,6 @@ void LiquidCrystal_I2C::backlight(void) {
 	expanderWrite(0);
 }
 
-
-
 /*********** mid level commands, for sending data/cmds */
 
 inline void LiquidCrystal_I2C::command(uint8_t value) {

@@ -7,7 +7,6 @@
 
 #include <Arduino.h>
 #include <inttypes.h>
-#include <Wire.h>
 
 #define ad9912_PartID 0x1902
 #define ad9912_read 0x1
