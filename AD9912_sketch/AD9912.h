@@ -31,14 +31,15 @@
 
 class AD9912 {
  public:
-  void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint64_t clkFreq);
+  void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t clkFreq);
   uint16_t read_PartID();
   uint64_t instruction(short command, uint16_t address, char bytes, uint64_t data);
   uint16_t DAC_read();
   void DAC_write(uint16_t DAC_val);
   uint64_t FTW_read();
   void FTW_write(uint64_t FTW);
-  void setFrequency(uint64_t frequency);
+  void setFrequency(uint32_t frequency);
+  uint32_t getFrequency();
   void updateClkFreq(uint64_t clkFreq);
  private:
   // global type variables
@@ -47,6 +48,6 @@ class AD9912 {
   uint _SPIMOSI;
   uint _SPICS;
   uint _IO_update;
-  uint64_t _fs;
+  uint32_t _fs;
 };
 #endif

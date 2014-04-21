@@ -9,7 +9,7 @@
 #include <inttypes.h>
 #include <SPI.h>
 
-void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint64_t fs) {
+void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t fs) {
   _SPICS = SPICS;
   _SPISCK = SPISCK;
   _SPIMOSI = SPIMOSI;
@@ -78,7 +78,7 @@ void AD9912::FTW_write(uint64_t FTW) {
   AD9912::instruction(0x0, 0x1AB, 6, FTW);
 }
 
-void AD9912::setFrequency(uint64_t fDDS) {
+void AD9912::setFrequency(uint32_t fDDS) {
   uint64_t FTW;
   FTW = (uint64_t) (281474976710656 * (fDDS / (double) _fs));
   AD9912::FTW_write(FTW);
@@ -86,6 +86,13 @@ void AD9912::setFrequency(uint64_t fDDS) {
   for(int i = 0; i < 512; i++)
     delay(0.5);
   digitalWrite(_IO_update, LOW);
+}
+
+uint32_t AD9912::getFrequency() {
+  uint64_t FTW = AD9912::FTW_read();
+  uint32_t fDDS;
+  fDDS = (uint32_t) ((FTW / (double) 281474976710656) * _fs);
+  return fDDS;
 }
 
 void AD9912::updateClkFreq(uint64_t fs) {
