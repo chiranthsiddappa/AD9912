@@ -91,7 +91,7 @@ void AD9912::setFrequency(uint32_t fDDS) {
 uint32_t AD9912::getFrequency() {
   uint64_t FTW = AD9912::FTW_read();
   uint32_t fDDS;
-  fDDS = (uint32_t) ((FTW / (double) 281474976710656) * _fs);
+  fDDS = (uint32_t) ((FTW / (float) 281474976710656) * _fs);
   return fDDS;
 }
 
