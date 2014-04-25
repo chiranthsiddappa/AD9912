@@ -9,13 +9,14 @@
 #include <inttypes.h>
 #include <SPI.h>
 
-void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t fs) {
+void AD9912::init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t fs, uint64_t RDAC_REF) {
   _SPICS = SPICS;
   _SPISCK = SPISCK;
   _SPIMOSI = SPIMOSI;
   _SPIMISO = SPIMISO;
   _IO_update = IO_update;
   _fs = fs;
+  _RDAC_REF = RDAC_REF;
 }
 
 uint16_t AD9912::read_PartID() {
@@ -78,6 +79,10 @@ void AD9912::FTW_write(uint64_t FTW) {
   AD9912::instruction(0x0, 0x1AB, 6, FTW);
 }
 
+void AD9912::updateClkFreq(uint64_t fs) {
+  _fs = fs;
+}
+
 void AD9912::setFrequency(uint32_t fDDS) {
   uint64_t FTW;
   FTW = (uint64_t) (281474976710656 * (fDDS / (double) _fs));
@@ -95,6 +100,17 @@ uint32_t AD9912::getFrequency() {
   return fDDS;
 }
 
-void AD9912::updateClkFreq(uint64_t fs) {
-  _fs = fs;
+uint32_t AD9912::fDDS() {
+  return AD9912::getFrequency();
 }
+
+float AD9912::IDAC_REF() {
+  return 12 / (10 * (float) _RDAC_REF);
+}
+
+float AD9912::getCurrent() {
+  uint16_t FSC = AD9912::DAC_read();
+  return (AD9912::IDAC_REF() * (73728 + 192 * FSC)) / 1024;
+}
+
+

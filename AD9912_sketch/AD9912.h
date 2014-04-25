@@ -31,7 +31,7 @@
 
 class AD9912 {
  public:
-  void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t clkFreq);
+  void init(uint SPICS, uint SPISCK, uint SPIMOSI, uint SPIMISO, uint IO_update, uint32_t clkFreq, uint64_t RDAC_REF);
   uint16_t read_PartID();
   uint64_t instruction(short command, uint16_t address, char bytes, uint64_t data);
   uint16_t DAC_read();
@@ -40,7 +40,12 @@ class AD9912 {
   void FTW_write(uint64_t FTW);
   void setFrequency(uint32_t frequency);
   uint32_t getFrequency();
+  uint32_t fDDS();
   void updateClkFreq(uint64_t clkFreq);
+  float IDAC_REF();
+  void setCurrent(float current);
+  float getCurrent();
+  float IDAC_FS();
  private:
   // global type variables
   uint _SPISCK;
@@ -49,5 +54,6 @@ class AD9912 {
   uint _SPICS;
   uint _IO_update;
   uint32_t _fs;
+  uint64_t _RDAC_REF;
 };
 #endif

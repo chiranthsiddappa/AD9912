@@ -50,7 +50,7 @@ void setup()
   digitalWrite(SPICS, HIGH);
   digitalWrite(SPISCK, LOW);
   digitalWrite(SPIMOSI, LOW);
-  ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update, 1000000000);
+  ad9912.init(SPICS, SPISCK, SPIMOSI, SPIMISO, IO_update, 1000000000, 10000);
   lcd.clearRow(0);
   lcd.print("AD9912 Module Init");
   //push buttons
@@ -63,27 +63,30 @@ void setup()
   else {
     lcd.print("Chip Not Found");
     flash_red();
-  }
+  }  
+  ad9912.DAC_write(0x0FF);
 }
 
 uint16_t partID_res;
 uint16_t DAC_fsc_read;
 uint16_t DAC_fsc_set;
-uint32_t FTW_read_msb;
-uint32_t FTW_read_lsb;
-uint64_t FTW_read = 0x000ULL;
-uint64_t FTW_set = 0x8FFFFFFFFFFFULL;
+uint32_t currFreq = 80000000;
 
 void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    //    ad9912.setFrequency(190440000);
-    ad9912.read_PartID();
+    ad9912.setFrequency(currFreq);
+    lcd.clearRow(2);
+    lcd.setCursor(0,2);
+    lcd.print(ad9912.getFrequency());
+    lcd.clearRow(3);
+    lcd.setCursor(0,3);
+    lcd.print(ad9912.DAC_read());
+    currFreq += 500000;
+    delay(100);
   }
-  Serial.print(PD_0, HEX);
-  Serial.print(" ");
-  Serial.print(PD_1, HEX);
+  Serial.print(ad9912.getFrequency(), DEC);
   Serial.println();
   delay(5);
 }
@@ -106,6 +109,7 @@ void flash_red() {
 
 uint ad9912_frequency_sweep() {
   uint64_t orig_FTW = ad9912.FTW_read();
+  uint32_t FTW_set;
   for(FTW_set = 0x0; FTW_set <= 0xFFFFFFFFFFEul; FTW_set += 536870912l) {
     ad9912.FTW_write(FTW_set);
     if(digitalRead(PUSH2) == LOW) {
