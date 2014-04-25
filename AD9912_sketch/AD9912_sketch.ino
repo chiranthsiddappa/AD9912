@@ -77,12 +77,7 @@ void loop()
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
     ad9912.setFrequency(currFreq);
-    lcd.clearRow(2);
-    lcd.setCursor(0,2);
-    lcd.print(ad9912.getFrequency());
-    lcd.clearRow(3);
-    lcd.setCursor(0,3);
-    lcd.print(ad9912.DAC_read());
+    LCDDisplayCurrentSettings();
     currFreq += 500000;
     delay(100);
   }
@@ -126,4 +121,21 @@ void LCD_clear_row(short row) {
     lcd.setCursor(row, i);
     lcd.print(" ");
   }
+}
+
+void LCDDisplayCurrentSettings() {
+  lcd.clearRow(0);
+  lcd.setCursor(0,0);
+  lcd.print("Freq: ");
+  lcd.print(ad9912.getFrequency());
+  lcd.print("Hz");
+  lcd.clearRow(1);
+  lcd.setCursor(0,1);
+  lcd.print("DAC: ");
+  lcd.print(ad9912.DAC_read());
+  lcd.clearRow(2);
+  lcd.setCursor(0,2);
+  lcd.print("Curr: ");
+  lcd.print(ad9912.getCurrent());
+  lcd.print("A");
 }

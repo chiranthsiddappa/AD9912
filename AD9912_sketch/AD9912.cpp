@@ -113,4 +113,8 @@ float AD9912::getCurrent() {
   return (AD9912::IDAC_REF() * (73728 + 192 * FSC)) / 1024;
 }
 
-
+void AD9912::setCurrent(float current) {
+  uint16_t FSC;
+  FSC = (uint16_t) ((((1024 * current) / AD9912::IDAC_REF()) - 73728) / 192);
+  AD9912::DAC_write(FSC);
+}
