@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include "AD9912.h"
 #include "LiquidCrystal_I2C.h"
+#include <math.h>
 
 #define PB4 0x7
 #define SPISCK PB4
@@ -63,14 +64,16 @@ void setup()
   else {
     lcd.print("Chip Not Found");
     flash_red();
-  }  
-  ad9912.DAC_write(0x0FF);
+  }
+  ad9912.setCurrent(0.0316);
+  ad9912.DAC_write(0x0);
+  Serial.begin(9600);
 }
 
 uint16_t partID_res;
 uint16_t DAC_fsc_read;
 uint16_t DAC_fsc_set;
-uint32_t currFreq = 80000000;
+uint32_t currFreq = 180000000;
 
 void loop()
 {
@@ -78,11 +81,9 @@ void loop()
   if(digitalRead(PUSH2) == LOW) {
     ad9912.setFrequency(currFreq);
     LCDDisplayCurrentSettings();
-    currFreq += 500000;
+    currFreq += 1000000;
     delay(100);
   }
-  Serial.print(ad9912.getFrequency(), DEC);
-  Serial.println();
   delay(5);
 }
 
@@ -124,18 +125,32 @@ void LCD_clear_row(short row) {
 }
 
 void LCDDisplayCurrentSettings() {
+  uint8_t i;
+  uint32_t freq = ad9912.getFrequency();
+  float current = ad9912.getCurrent() * 1000;
   lcd.clearRow(0);
   lcd.setCursor(0,0);
   lcd.print("Freq: ");
-  lcd.print(ad9912.getFrequency());
+  for(i = 0; i < 8 - length(freq); i++) {
+    lcd.print(" ");
+  }
+  lcd.print(freq);
   lcd.print("Hz");
   lcd.clearRow(1);
   lcd.setCursor(0,1);
   lcd.print("DAC: ");
-  lcd.print(ad9912.DAC_read());
+  lcd.print(ad9912.DAC_read(), HEX);
   lcd.clearRow(2);
   lcd.setCursor(0,2);
   lcd.print("Curr: ");
-  lcd.print(ad9912.getCurrent());
-  lcd.print("A");
+  for(i = 0; i < 2 - length(current); i++) {
+    lcd.print(" ");
+  }
+  lcd.print(current, 4);
+  lcd.print("mA");
+}
+
+uint32_t length(uint64_t x) {
+  float flength = floor(log10(abs(x))) + 1;
+  return (uint32_t) flength;
 }

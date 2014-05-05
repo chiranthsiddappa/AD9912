@@ -85,7 +85,7 @@ void AD9912::updateClkFreq(uint64_t fs) {
 
 void AD9912::setFrequency(uint32_t fDDS) {
   uint64_t FTW;
-  FTW = (uint64_t) (281474976710656 * (fDDS / (double) _fs));
+  FTW = (uint64_t) (281474976710656 * (fDDS / (float) _fs));
   AD9912::FTW_write(FTW);
   digitalWrite(_IO_update, HIGH);
   for(int i = 0; i < 512; i++)
