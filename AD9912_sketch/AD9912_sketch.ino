@@ -73,21 +73,23 @@ void setup()
 uint16_t partID_res;
 uint16_t DAC_fsc_read;
 uint16_t DAC_fsc_set;
-uint32_t userFreq = 180000000;
-uint32_t freqCursPos = 0;
-uint32_t DACCursPos = 0;
+uint32_t userFreq = 1;
+uint16_t userDAC = 0;
+uint32_t freqCursPos = 7;
+uint32_t DACCursPos = 3;
 
 void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
+    incUserFreq();
     ad9912.setFrequency(userFreq);
-    LCDDisplayCurrentSettings();
-    userFreq += 1000000;
+    //    LCDDisplayCurrentSettings();
+    printUserFreq();
     delay(100);
   }
-  delay(5);
-  dispDACCurs();
+  incFreqCurs();
+  dispFreqCurs();
 }
 
 void flash_green() {
@@ -139,17 +141,17 @@ void LCDDisplayCurrentSettings() {
   }
   lcd.setCursor(0,0);
   lcd.print("Freq: ");
-  for(i = 0; i < 8 - length(freq); i++) {
+  for(i = 0; i < 9 - length(freq); i++) {
     lcd.print(" ");
   }
   lcd.print(freq);
   lcd.print("Hz");
   lcd.setCursor(0,1);
   lcd.print("DAC: ");
-  for(i = 0; i < 3 - length(DAC); i++) {
+  for(i = 0; i < 4 - length(DAC); i++) {
     lcd.print(" ");
   }
-  lcd.print(DAC, HEX);
+  lcd.print(DAC);
   lcd.setCursor(0,2);
   lcd.print("Curr: ");
   for(i = 0; i < 2 - length(current); i++) {
@@ -170,10 +172,23 @@ void printUserFreq() {
   lcd.clearRow(0);
   lcd.setCursor(0,0);
   lcd.print("Freq: ");
-  for(i = 0; i < 8 - length(userFreq); i++) {
+  for(i = 0; i < 9 - length(userFreq); i++) {
     lcd.print(" ");
   }
+  lcd.print(userFreq);
   lcd.print("Hz");
+}
+
+void printUserDAC() {
+  uint8_t i;
+  lcd.noCursor();
+  lcd.clearRow(0);
+  lcd.setCursor(0,1);
+  lcd.print("DAC: ");
+  for(i = 0; i < 4 - length(userDAC); i++) {
+    lcd.print(" ");
+  }
+  lcd.print(userDAC);
 }
 
 void dispFreqCurs() {
@@ -184,4 +199,56 @@ void dispFreqCurs() {
 void dispDACCurs() {
   lcd.setCursor(8 - DACCursPos, 1);
   lcd.cursor();
+}
+
+void incFreqCurs() {
+  if(freqCursPos < 8) {
+    ++freqCursPos;
+  } else
+    freqCursPos = 0;
+}
+
+void decFreqCurs() {
+  if(freqCursPos > 0) {
+    --freqCursPos;
+  } else
+    freqCursPos = 8;
+}
+
+void incDACCurs() {
+  if(DACCursPos < 3) {
+    ++DACCursPos;
+  } else
+    DACCursPos = 0;
+}
+
+void decDACCurs() {
+  if(DACCursPos > 0) {
+    --DACCursPos;
+  } else
+    DACCursPos = 0;
+}
+
+void incUserFreq() {
+  uint32_t incAmount = (uint32_t) pow(10, freqCursPos);
+  if(userFreq + incAmount <= 450000000)
+    userFreq += incAmount;
+}
+
+void decUserFreq() {
+  uint32_t decAmount = (uint32_t) pow(10, freqCursPos);
+  if(decAmount <= userFreq)
+    userFreq -= decAmount;
+}
+
+void incDAC() {
+  uint32_t incAmount = (uint32_t) pow(10, DACCursPos);
+  if(userDAC + incAmount <= 1023) 
+    userDAC += incAmount;
+}
+
+void decDAC() {
+  uint32_t decAmount = (uint32_t) pow(10, DACCursPos);
+  if(decAmount <= userDAC)
+    userDAC -= decAmount;
 }
