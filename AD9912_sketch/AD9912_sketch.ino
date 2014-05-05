@@ -73,18 +73,21 @@ void setup()
 uint16_t partID_res;
 uint16_t DAC_fsc_read;
 uint16_t DAC_fsc_set;
-uint32_t currFreq = 180000000;
+uint32_t userFreq = 180000000;
+uint32_t freqCursPos = 0;
+uint32_t DACCursPos = 0;
 
 void loop()
 {
   // put your main code here, to run repeatedly:
   if(digitalRead(PUSH2) == LOW) {
-    ad9912.setFrequency(currFreq);
+    ad9912.setFrequency(userFreq);
     LCDDisplayCurrentSettings();
-    currFreq += 1000000;
+    userFreq += 1000000;
     delay(100);
   }
   delay(5);
+  dispDACCurs();
 }
 
 void flash_green() {
@@ -128,7 +131,12 @@ void LCDDisplayCurrentSettings() {
   uint8_t i;
   uint32_t freq = ad9912.getFrequency();
   float current = ad9912.getCurrent() * 1000;
-  lcd.clearRow(0);
+  uint32_t DAC = ad9912.DAC_read();
+  lcd.noCursor();
+  lcd.noBlink();
+  for(i = 0; i < 3; i++) {
+    lcd.clearRow(i);
+  }
   lcd.setCursor(0,0);
   lcd.print("Freq: ");
   for(i = 0; i < 8 - length(freq); i++) {
@@ -136,11 +144,12 @@ void LCDDisplayCurrentSettings() {
   }
   lcd.print(freq);
   lcd.print("Hz");
-  lcd.clearRow(1);
   lcd.setCursor(0,1);
   lcd.print("DAC: ");
-  lcd.print(ad9912.DAC_read(), HEX);
-  lcd.clearRow(2);
+  for(i = 0; i < 3 - length(DAC); i++) {
+    lcd.print(" ");
+  }
+  lcd.print(DAC, HEX);
   lcd.setCursor(0,2);
   lcd.print("Curr: ");
   for(i = 0; i < 2 - length(current); i++) {
@@ -153,4 +162,26 @@ void LCDDisplayCurrentSettings() {
 uint32_t length(uint64_t x) {
   float flength = floor(log10(abs(x))) + 1;
   return (uint32_t) flength;
+}
+
+void printUserFreq() {
+  uint8_t i;
+  lcd.noCursor();
+  lcd.clearRow(0);
+  lcd.setCursor(0,0);
+  lcd.print("Freq: ");
+  for(i = 0; i < 8 - length(userFreq); i++) {
+    lcd.print(" ");
+  }
+  lcd.print("Hz");
+}
+
+void dispFreqCurs() {
+  lcd.setCursor(14 - freqCursPos, 0);
+  lcd.cursor();
+}
+
+void dispDACCurs() {
+  lcd.setCursor(8 - DACCursPos, 1);
+  lcd.cursor();
 }
