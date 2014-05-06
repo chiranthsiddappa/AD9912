@@ -26,11 +26,42 @@
 #define I2C2SLA PD1
 #define I2C2SCL PD0
 
+#define GREEN_BUTTON PB_0
+#define RED_BUTTON PD_2
+#define UP_BUTTON PD_3
+#define DOWN_BUTTON PE_1
+#define LEFT_BUTTON PE_2
+#define RIGHT_BUTTON PE_3
+
+uint16_t partID_res;
+uint16_t DAC_fsc_read;
+uint16_t DAC_fsc_set;
+uint32_t userFreq = 1;
+uint16_t userDAC = 0;
+uint32_t freqCursPos = 0;
+uint32_t DACCursPos = 0;
+uint8_t green_mode = 0;
+uint8_t menu_mode = 0;
+
+#define green_freq_mode 0x0
+#define green_dac_mode 0x1
+#define menu_init 0x0
+#define menu_ff 0x1
+
 AD9912 ad9912;
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 void setup()
 {
+  Serial.begin(9600);
+  //UI pins
+  pinMode(GREEN_BUTTON, INPUT);
+  pinMode(RED_BUTTON, INPUT);
+  pinMode(UP_BUTTON, INPUT);
+  pinMode(DOWN_BUTTON, INPUT);
+  pinMode(LEFT_BUTTON, INPUT);
+  pinMode(RIGHT_BUTTON, INPUT);
+  // I2C pins
   pinMode(I2C2SLA, INPUT_PULLUP);
   pinMode(I2C2SCL, INPUT_PULLUP);
   Wire.begin();
@@ -60,36 +91,84 @@ void setup()
   if(ad9912.read_PartID() == 0x1902) {
     lcd.print("Chip Found");
     flash_green();
+    userFreq = ad9912.getFrequency();
+    userDAC = ad9912.DAC_read();
   }
   else {
     lcd.print("Chip Not Found");
     flash_red();
   }
-  ad9912.setCurrent(0.0316);
-  ad9912.DAC_write(0x0);
-  Serial.begin(9600);
 }
-
-uint16_t partID_res;
-uint16_t DAC_fsc_read;
-uint16_t DAC_fsc_set;
-uint32_t userFreq = 1;
-uint16_t userDAC = 0;
-uint32_t freqCursPos = 7;
-uint32_t DACCursPos = 3;
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  if(digitalRead(PUSH2) == LOW) {
-    incUserFreq();
-    ad9912.setFrequency(userFreq);
-    //    LCDDisplayCurrentSettings();
-    printUserFreq();
-    delay(100);
+  if(menu_mode == menu_init) {
+    if(digitalRead(GREEN_BUTTON) == HIGH) {
+      menu_mode = menu_ff;
+      for(int i = 0; i < 4; i++) {
+	lcd.clearRow(i);
+      }
+      printUserFreq();
+      printUserDAC();
+    }
+  } 
+  else if (menu_mode == menu_ff) {
+    //display cursor
+    if(green_mode == green_freq_mode)
+      dispFreqCurs();
+    else
+      dispDACCurs();
+    //check for the green mode button
+    if(digitalRead(GREEN_BUTTON) == HIGH) {
+      green_mode = (green_mode == green_freq_mode) ? green_dac_mode : green_freq_mode;
+      delay(200);
+    }
+    // ruld buttons
+    if(green_mode == green_freq_mode) {
+      if(digitalRead(UP_BUTTON) == HIGH) {
+	incUserFreq();
+	printUserFreq();
+	ad9912.setFrequency(userFreq);
+	delay(200);
+      }
+      if(digitalRead(DOWN_BUTTON) == HIGH) {
+	decUserFreq();
+	printUserFreq();
+	ad9912.setFrequency(userFreq);
+	delay(200);
+      }
+      if(digitalRead(LEFT_BUTTON) == HIGH) {
+	incFreqCurs();
+	delay(200);
+      }
+      if(digitalRead(RIGHT_BUTTON) == HIGH) {
+	decFreqCurs();
+	delay(200);
+      }
+    }
+    else {
+      if(digitalRead(UP_BUTTON) == HIGH) {
+	incUserDAC();
+	printUserDAC();
+	ad9912.DAC_write(userDAC);
+	delay(200);
+      }
+      if(digitalRead(DOWN_BUTTON) == HIGH) {
+	decUserDAC();
+	printUserDAC();
+	ad9912.DAC_write(userDAC);
+	delay(200);
+      }
+      if(digitalRead(LEFT_BUTTON) == HIGH) {
+	incDACCurs();
+	delay(200);
+      }
+      if(digitalRead(RIGHT_BUTTON) == HIGH) {
+	decDACCurs();
+	delay(200);
+      }
+    }
   }
-  incFreqCurs();
-  dispFreqCurs();
 }
 
 void flash_green() {
@@ -173,7 +252,7 @@ void printUserFreq() {
   lcd.setCursor(0,0);
   lcd.print("Freq: ");
   for(i = 0; i < 9 - length(userFreq); i++) {
-    lcd.print(" ");
+    lcd.print("0");
   }
   lcd.print(userFreq);
   lcd.print("Hz");
@@ -182,11 +261,11 @@ void printUserFreq() {
 void printUserDAC() {
   uint8_t i;
   lcd.noCursor();
-  lcd.clearRow(0);
+  lcd.clearRow(1);
   lcd.setCursor(0,1);
   lcd.print("DAC: ");
   for(i = 0; i < 4 - length(userDAC); i++) {
-    lcd.print(" ");
+    lcd.print("0");
   }
   lcd.print(userDAC);
 }
@@ -226,7 +305,7 @@ void decDACCurs() {
   if(DACCursPos > 0) {
     --DACCursPos;
   } else
-    DACCursPos = 0;
+    DACCursPos = 3;
 }
 
 void incUserFreq() {
@@ -241,13 +320,13 @@ void decUserFreq() {
     userFreq -= decAmount;
 }
 
-void incDAC() {
+void incUserDAC() {
   uint32_t incAmount = (uint32_t) pow(10, DACCursPos);
   if(userDAC + incAmount <= 1023) 
     userDAC += incAmount;
 }
 
-void decDAC() {
+void decUserDAC() {
   uint32_t decAmount = (uint32_t) pow(10, DACCursPos);
   if(decAmount <= userDAC)
     userDAC -= decAmount;
