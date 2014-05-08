@@ -5,6 +5,7 @@
 #include "AD9912.h"
 #include "LiquidCrystal_I2C.h"
 #include <math.h>
+#include "AmplitudeCalibrationData.h"
 
 #define PB4 0x7
 #define SPISCK PB4
