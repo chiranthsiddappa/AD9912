@@ -130,12 +130,16 @@ void loop()
 	incUserFreq();
 	printUserFreq();
 	ad9912.setFrequency(userFreq);
+	printUserDBM();
+	printUserVpp();
 	delay(200);
       }
       if(digitalRead(DOWN_BUTTON) == HIGH) {
 	decUserFreq();
 	printUserFreq();
 	ad9912.setFrequency(userFreq);
+	printUserDBM();
+	printUserVpp();
 	delay(200);
       }
       if(digitalRead(LEFT_BUTTON) == HIGH) {
@@ -152,12 +156,16 @@ void loop()
 	incUserDAC();
 	printUserDAC();
 	ad9912.DAC_write(userDAC);
+	printUserDBM();
+	printUserVpp();
 	delay(200);
       }
       if(digitalRead(DOWN_BUTTON) == HIGH) {
 	decUserDAC();
 	printUserDAC();
 	ad9912.DAC_write(userDAC);
+	printUserDBM();
+	printUserVpp();
 	delay(200);
       }
       if(digitalRead(LEFT_BUTTON) == HIGH) {
@@ -269,6 +277,27 @@ void printUserDAC() {
     lcd.print("0");
   }
   lcd.print(userDAC);
+}
+
+void printUserDBM() {
+  lcd.noCursor();
+  lcd.clearRow(2);
+  if(userFreq >= ACD_start && userFreq <= ACD_stop) {
+    lcd.setCursor(0,2);
+    lcd.print("dBM: ");
+    lcd.print(getDBM(userFreq , userDAC));
+  }
+}
+
+void printUserVpp() {
+  lcd.noCursor();
+  lcd.clearRow(3);
+  if(userFreq >= ACD_start && userFreq <= ACD_stop) {
+    lcd.setCursor(0,3);
+    lcd.print("Vpp: ");
+    lcd.print(getVpp(userFreq , userDAC));
+    lcd.print("V");
+  }
 }
 
 void dispFreqCurs() {

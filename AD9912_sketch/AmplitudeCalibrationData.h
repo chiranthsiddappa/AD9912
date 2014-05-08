@@ -41,3 +41,14 @@ float getDBM(uint32_t frequency, uint16_t DAC_val) {
   else
     return a * pow(b , DAC_val) -(offset - 1) - a;
 }
+
+float getVpp(uint32_t frequency, uint16_t DAC_val) {
+  float dBM = getDBM(frequency, DAC_val);
+  float pow_val = 0.1*(dBM - 30);
+  float sqrt_res = 50 * pow(10 , pow_val);
+  if(sqrt_res > 0) {
+    return 2*sqrt(2)*sqrt(sqrt_res);
+  }
+  else 
+    return 0;
+}
