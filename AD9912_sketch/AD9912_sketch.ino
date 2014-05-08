@@ -285,7 +285,8 @@ void printUserDBM() {
   if(userFreq >= ACD_start && userFreq <= ACD_stop) {
     lcd.setCursor(0,2);
     lcd.print("dBM: ");
-    lcd.print(getDBM(userFreq , userDAC));
+    lcd.print(getDBM(userFreq , userDAC) , 4);
+    lcd.print("dBM");
   }
 }
 
@@ -295,7 +296,7 @@ void printUserVpp() {
   if(userFreq >= ACD_start && userFreq <= ACD_stop) {
     lcd.setCursor(0,3);
     lcd.print("Vpp: ");
-    lcd.print(getVpp(userFreq , userDAC));
+    lcd.print(getVpp(userFreq , userDAC) , 4);
     lcd.print("V");
   }
 }

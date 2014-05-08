@@ -52,3 +52,33 @@ float getVpp(uint32_t frequency, uint16_t DAC_val) {
   else 
     return 0;
 }
+
+uint16_t findBestDACMatch(uint32_t freq, float searchVal) {
+  float diff = abs(searchVal - getDBM(freq , 0));
+  uint16_t DAC = 0;
+  float currDBM;
+  for(uint16_t i = 0; i <= 1023; i++) {
+    currDBM = getDBM(freq , i);
+    if(fabs(searchVal - currDBM) < diff) {
+      diff = fabs(searchVal - currDBM);
+      DAC = i;
+    }
+  }
+  return DAC;
+}
+
+uint32_t findIncFreqDBMMatch(uint32_t frequency, float search_val, uint32_t step_size) {
+  for(uint32_t searchFreq = frequency + step_size; searchFreq <= ACD_stop * pow(10 , 6); searchFreq += step_size) {
+    if(getDBM(searchFreq, 0) <= search_val)
+      return searchFreq;
+  }
+  return frequency;
+}
+
+uint32_t findDecFreqDBMMatch(uint32_t frequency, float search_val, uint32_t step_size) {
+  for(uint32_t searchFreq = frequency - step_size; searchFreq >= ACD_start * pow(10 , 6); searchFreq -= step_size) {
+    if(getDBM(searchFreq, 0) <= search_val)
+      return searchFreq;
+  }
+  return frequency;
+}
