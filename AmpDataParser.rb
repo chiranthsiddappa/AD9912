@@ -1,5 +1,5 @@
-min = "dBMMinVals = {"
-max = "dBMMaxVals = {"
+min = "float dBMMinVals[391] = {"
+max = "float dBMMaxVals[391] = {"
 
 ampDataHashArr = []
 File.open("AmplitudeCalibrationData.csv").each do |line|
