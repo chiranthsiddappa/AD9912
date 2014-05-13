@@ -180,22 +180,22 @@ void loop()
       else if (demoState == demo_freq_1_c) {
 	userFreq = 195 * pow(10 , 6);
 	//	userDAC = findBestDACMatch(userFreq , demo_DBM_match);
-	userDAC = 180;
+	userDAC = 155;
       }
       else if (demoState == demo_freq_2_c) {
 	userFreq = 362 * pow(10 , 6);
 	//	userDAC = findBestDACMatch(userFreq , demo_DBM_match);
-	userDAC = 820;
+	userDAC = 858;
       }
       else if (demoState == demo_freq_3_c) {
 	userFreq = 385 * pow(10 , 6);
 	//	userDAC = findBestDACMatch(userFreq , demo_DBM_match);
-	userDAC = 590;
+	userDAC = 605;
       }
       else if (demoState == demo_freq_4_c) {
 	userFreq = 400 * pow(10 , 6);
 	//	userDAC = findBestDACMatch(userFreq , demo_DBM_match);
-	userDAC = 511;
+	userDAC = 596;
       }
       // Constant display stuff here
       ad9912.setFrequency(userFreq);
